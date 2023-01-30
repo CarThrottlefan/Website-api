@@ -45,6 +45,10 @@ app.use(express.json());
 // 
 // TODO: Add your routes here and remove the example routes once you know how
 //       everything works.
+
+app.post("/currDb/", function(req, res){
+	
+});
 // ###############################################################################
 
 // This example route responds to http://localhost:3000/hello with an example JSON object.
@@ -70,9 +74,20 @@ app.get('/db-example', function(req, res) {
     	// TODO: set the appropriate HTTP response headers and HTTP response codes here.
 
     	// # Return db response as JSON
-    	return res.json(rows)
+    	return res.json(rows);
     });
 });
+
+app.get('/currDb', function(req, res) {
+	
+	db.all(`SELECT author, alt, tags, image, description FROM gallery`, function(err, rows) {
+		res.set('Content-Type', 'application/json');
+		res.status(200);
+		
+		return res.json(rows);
+	});
+});
+
 
 app.post('/post-example', function(req, res) {
 	// This is just to check if there is any data posted in the body of the HTTP request:
@@ -91,6 +106,7 @@ console.log("Your Web server should be up and running, waiting for requests to c
 // Some helper functions called above
 function my_database(filename) {
 	// Conncect to db by opening filename, create filename if it does not exist:
+	let i;
 	var db = new sqlite.Database(filename, (err) => {
   		if (err) {
 			console.error(err.message);
@@ -128,9 +144,11 @@ function my_database(filename) {
     				]);
 				console.log('Inserted dummy photo entry into empty database');
 			} else {
+				i = result[0].count;
 				console.log("Database already contains", result[0].count, " item(s) at startup.");
 			}
 		});
+
 	});
 	return db;
 }
