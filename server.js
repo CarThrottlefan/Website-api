@@ -48,65 +48,72 @@ app.use(express.json());
 
 app.put("/currDb/item/:uid", function(req, res){ //TODO ask if I can use a patch method, instead of PUT. IF so, remove the checks for null, since a patch method only changes parts of an entry. (in theory)
 
-	id = req.params.uid;
-	console.log(id + ' id of curr');
+	idReq = req.params.uid;
+	console.log(idReq + ' id of curr');
 	item = req.body;
 	let fail = false;
 	let errType = '';
 
-	db.run(`UPDATE gallery
-	SET author=?, alt=?, tags=?, image=?,
-	description=? WHERE id=?`,
-	[item['author'], item['alt'], item['tags'], item['image'], item['description']], () => {
-					
-					if(id != item['id'])
-					{
-						errType += ' #id'
-						fail = true;
-						console.log('Incorrect ID');
-					}
+	db.get(`SELECT EXISTS(SELECT 1 FROM gallery WHERE id=?)`, [idReq], (err, row) => {
+		if (err) {
+		  console.error(err.message);
+		}
+		if (!row['EXISTS(SELECT 1 FROM gallery WHERE id=?)']) {
+		  res.status(404);
+		  res.json('Error - item with the given ID does not exist');
+		} else 
+		{
+			db.run(`UPDATE gallery
+				SET author=?, alt=?, tags=?, image=?, description=? WHERE id=?`,
+				[item['author'], item['alt'], item['tags'], item['image'], item['description'], idReq], (err) => {
+				if (err) {
+					console.error(err.message);
+				}
+				item['id'] = idReq;
+				// rest of the code to check for missing fields and return the appropriate response
+				if(item['author'] == null)
+							{
+								errType += ' #author';
+								fail = true;
+							}
 		
-					if(item['author'] == null)
-					{
-						errType += ' #author';
-						fail = true;
-					}
-
-					if(item['alt'] == null)
-					{
-						errType += ' #alt';
-						fail = true;
-					}
-
-					if(item['tags'] == null)
-					{
-						errType += ' #tags';
-						fail = true;
-					}
-
-					if(item['image'] == null)
-					{
-						errType += ' #image';
-						fail = true;
-					}
-
-					if(item['description'] == null)
-					{
-						errType += ' #description';
-						fail = true;
-					}
-
-					if(fail)
-					{
-						res.status(400);
-						res.json('Error - missing attributes' + errType);
-						console.log('Malformed user input, missing' + errType);
-					}
-					else{
-						res.status(200);
-						res.json('OK'); 
-					}
-				}); 
+							if(item['alt'] == null)
+							{
+								errType += ' #alt';
+								fail = true;
+							}
+		
+							if(item['tags'] == null)
+							{
+								errType += ' #tags';
+								fail = true;
+							}
+		
+							if(item['image'] == null)
+							{
+								errType += ' #image';
+								fail = true;
+							}
+		
+							if(item['description'] == null)
+							{
+								errType += ' #description';
+								fail = true;
+							}
+		
+							if(fail)
+							{
+								res.status(400);
+								res.json('Error - missing attributes' + errType);
+								console.log('Malformed user input, missing' + errType);
+							}
+							else{
+								res.status(200);
+								res.json('OK'); 
+							}
+				});			
+		}
+	  });	
 });
 
 app.post("/currDb/insert", function(req, res){
