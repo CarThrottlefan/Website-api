@@ -46,8 +46,56 @@ app.use(express.json());
 // TODO: Add your routes here and remove the example routes once you know how
 //       everything works.
 
-app.post("/currDb/", function(req, res){
-	
+app.post("/currDb/insert", function(req, res){
+	item = req.body;
+	let fail = false;
+	let errType = '';
+
+	db.run(`INSERT INTO gallery (author, alt, tags, image, description)
+                VALUES (?, ?, ?, ?, ?)`,
+                [item['author'], item['alt'], item['tags'], item['image'],  item['description']], function() {
+					
+					if(item['author'] == null)
+					{
+						errType += ' #author';
+						fail = true;
+					}
+
+					if(item['alt'] == null)
+					{
+						errType += ' #alt';
+						fail = true;
+					}
+
+					if(item['tags'] == null)
+					{
+						errType += ' #tags';
+						fail = true;
+					}
+
+					if(item['image'] == null)
+					{
+						errType += ' #image';
+						fail = true;
+					}
+
+					if(item['description'] == null)
+					{
+						errType += ' #description';
+						fail = true;
+					}
+
+					if(fail)
+					{
+						res.status(400);
+						res.json('Error - missing attributes' + errType);
+						console.log('Malformed user input, missing' + errType);
+					}
+					else{
+						res.status(200);
+						res.json('OK'); 
+					}
+				});			
 });
 // ###############################################################################
 
@@ -66,7 +114,7 @@ app.get("/hello", function(req, res) {
 // This route responds to http://localhost:3000/db-example by selecting some data from the
 // database and return it as JSON object.
 // Please test if this works on your own device before you make any changes.
-app.get('/db-example', function(req, res) {
+/*app.get('/db-example', function(req, res) {
     // Example SQL statement to select the name of all products from a specific brand
 	db.all(`SELECT * FROM gallery WHERE author=?`, ['Grace Hopper'], function(err, rows) {
 	
@@ -76,13 +124,42 @@ app.get('/db-example', function(req, res) {
     	// # Return db response as JSON
     	return res.json(rows);
     });
-});
+});*/
 
 app.get('/currDb', function(req, res) {
 	
-	db.all(`SELECT author, alt, tags, image, description FROM gallery`, function(err, rows) {
+	db.all("SELECT author, alt, tags, image, description FROM gallery", function(err, rows) {
 		res.set('Content-Type', 'application/json');
 		res.status(200);
+		
+		if(err)
+		{
+			res.status(404);
+			console.error(err.message);
+		}
+		
+		return res.json(rows);
+	});
+});
+
+app.get('/currDb/item/:uid', function(req, res) {
+	let id = req.params.uid;
+	db.all("SELECT author, alt, tags, image, description FROM gallery WHERE id=" + id, function(err, rows) {
+		
+		res.set('Content-Type', 'application/json');
+		res.status(200);
+
+		if(!db.all('SELECT id FROM gallery WHERE id=' + id))
+		{
+			console.log('err found');
+			err = 'Not found';
+		}
+
+		if(err)
+		{
+			console.error(err.message);
+			res.status(404);
+		}
 		
 		return res.json(rows);
 	});
@@ -106,7 +183,7 @@ console.log("Your Web server should be up and running, waiting for requests to c
 // Some helper functions called above
 function my_database(filename) {
 	// Conncect to db by opening filename, create filename if it does not exist:
-	let i;
+	let i; //TODO see if needed
 	var db = new sqlite.Database(filename, (err) => {
   		if (err) {
 			console.error(err.message);
