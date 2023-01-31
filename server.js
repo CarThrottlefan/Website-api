@@ -46,6 +46,69 @@ app.use(express.json());
 // TODO: Add your routes here and remove the example routes once you know how
 //       everything works.
 
+app.put("/currDb/item/:uid", function(req, res){ //TODO ask if I can use a patch method, instead of PUT. IF so, remove the checks for null, since a patch method only changes parts of an entry. (in theory)
+
+	id = req.params.uid;
+	console.log(id + ' id of curr');
+	item = req.body;
+	let fail = false;
+	let errType = '';
+
+	db.run(`UPDATE gallery
+	SET author=?, alt=?, tags=?, image=?,
+	description=? WHERE id=?`,
+	[item['author'], item['alt'], item['tags'], item['image'], item['description']], () => {
+					
+					if(id != item['id'])
+					{
+						errType += ' #id'
+						fail = true;
+						console.log('Incorrect ID');
+					}
+		
+					if(item['author'] == null)
+					{
+						errType += ' #author';
+						fail = true;
+					}
+
+					if(item['alt'] == null)
+					{
+						errType += ' #alt';
+						fail = true;
+					}
+
+					if(item['tags'] == null)
+					{
+						errType += ' #tags';
+						fail = true;
+					}
+
+					if(item['image'] == null)
+					{
+						errType += ' #image';
+						fail = true;
+					}
+
+					if(item['description'] == null)
+					{
+						errType += ' #description';
+						fail = true;
+					}
+
+					if(fail)
+					{
+						res.status(400);
+						res.json('Error - missing attributes' + errType);
+						console.log('Malformed user input, missing' + errType);
+					}
+					else{
+						res.status(200);
+						res.json('OK'); 
+					}
+				}); 
+});
+
 app.post("/currDb/insert", function(req, res){
 	item = req.body;
 	let fail = false;
@@ -53,7 +116,7 @@ app.post("/currDb/insert", function(req, res){
 
 	db.run(`INSERT INTO gallery (author, alt, tags, image, description)
                 VALUES (?, ?, ?, ?, ?)`,
-                [item['author'], item['alt'], item['tags'], item['image'],  item['description']], function() {
+                [item['author'], item['alt'], item['tags'], item['image'],  item['description']], () => {
 					
 					if(item['author'] == null)
 					{
@@ -128,7 +191,7 @@ app.get("/hello", function(req, res) {
 
 app.get('/currDb', function(req, res) {
 	
-	db.all("SELECT author, alt, tags, image, description FROM gallery", function(err, rows) {
+	db.all("SELECT * FROM gallery", (err, rows) => {
 		res.set('Content-Type', 'application/json');
 		res.status(200);
 		
@@ -144,7 +207,7 @@ app.get('/currDb', function(req, res) {
 
 app.get('/currDb/item/:uid', function(req, res) {
 	let id = req.params.uid;
-	db.all("SELECT author, alt, tags, image, description FROM gallery WHERE id=" + id, function(err, rows) {
+	db.all("SELECT author, alt, tags, image, description FROM gallery WHERE id=" + id, (err, rows) => {
 		
 		res.set('Content-Type', 'application/json');
 		res.status(200);
@@ -157,8 +220,8 @@ app.get('/currDb/item/:uid', function(req, res) {
 
 		if(err)
 		{
-			console.error(err.message);
 			res.status(404);
+			console.error(err.message);
 		}
 		
 		return res.json(rows);
@@ -221,8 +284,8 @@ function my_database(filename) {
     				]);
 				console.log('Inserted dummy photo entry into empty database');
 			} else {
-				i = result[0].count;
-				console.log("Database already contains", result[0].count, " item(s) at startup.");
+				//i = result[0].count;
+				console.log("Database contains", result[0].count, "item(s) at startup.");
 			}
 		});
 
