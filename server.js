@@ -33,7 +33,7 @@ let db = my_database('./gallery.db');
 //
 // First, create an express application `app`:
 
-var express = require("express");
+var express = require("express"); 
 var app = express();
 const cors = require('cors');
 app.use(cors({
