@@ -35,6 +35,10 @@ let db = my_database('./gallery.db');
 
 var express = require("express");
 var app = express();
+const cors = require('cors');
+app.use(cors({
+    origin: '*' //TODO maybe find a way so you can give request permission just to the website adresses (ISSUE now is the fact that the /item/*num* is dynamic, since u need all id's to be accessible)
+}));
 
 // We need some middleware to parse JSON data in the body of our HTTP requests:
 app.use(express.json());
@@ -56,7 +60,7 @@ app.get("/hello", function(req, res) {
 });
 
 //-----------------------Update functionality -----------------
-app.put("/currDb/item/:uid", function(req, res){
+app.put("/currDb/item/:uid/", function(req, res){
 	idReq = req.params.uid;
 	item = req.body;
 	let fail = false;
@@ -117,7 +121,7 @@ app.put("/currDb/item/:uid", function(req, res){
 								return res.json('Error - missing attributes' + errType);
 							}
 							else{
-								res.status(203);
+								res.status(200);
 								return res.json('Update completed successfully'); 
 							}
 				});			
@@ -126,7 +130,7 @@ app.put("/currDb/item/:uid", function(req, res){
 });
 
 //---------------------Inserting a new entry in the database --------------------
-app.post("/currDb", function(req, res){
+app.post("/currDb/", function(req, res){
 	item = req.body;
 	let fail = false;
 	let errType = '';
@@ -172,8 +176,8 @@ app.post("/currDb", function(req, res){
 						return res.json('Error - missing attributes' + errType);
 					}
 					else{
-						res.status(202);
-						return res.json('Inserted entry in database'); 
+						res.status(201);
+						return res.json('Item added successfully'); 
 					}
 				});			
 });
@@ -182,7 +186,7 @@ app.post("/currDb", function(req, res){
 
 
 //------------Retrieves the whole database ------------------------
-app.get('/currDb', function(req, res) { 
+app.get('/currDb/', function(req, res) { 
 	
 	db.all("SELECT * FROM gallery", (err, rows) => {
 		if(err)
@@ -201,7 +205,7 @@ app.get('/currDb', function(req, res) {
 });
 
 //--------------Retrieves a single item, based on the query id ----------------------
-app.get('/currDb/item/:id', function(req, res) { 
+app.get('/currDb/item/:id/', function(req, res) { 
 	let id = req.params.id;
 	db.all(`SELECT * FROM gallery WHERE id = ?`, [id], (err, rows) => {
 		
@@ -218,14 +222,14 @@ app.get('/currDb/item/:id', function(req, res) {
 		else
 		{
 			res.set('Content-Type', 'application/json');
-			res.status(201);
+			res.status(200);
 			return res.json(rows);
 		}
 	});
 });
 
 //---------------Deletes a single entry in the db --------------------------
-app.delete("/currDb/item/:id", function(req, res) {
+app.delete("/currDb/item/:id/", function(req, res) {
 	db.run(`DELETE FROM gallery WHERE id = ?`, [req.params.id], function(err, result) {
 	  if (err) {
 		res.status(500);
@@ -234,7 +238,7 @@ app.delete("/currDb/item/:id", function(req, res) {
 	  else {
 		if (this.changes > 0) {
 		  res.status(204);
-		  return res.json("Item Deleted");
+		  return res.json("Successfully deleted");
 		}
 		else {
 		  res.status(404);
@@ -245,7 +249,7 @@ app.delete("/currDb/item/:id", function(req, res) {
   });
 
 //------------------Resets database to its initial values ----------------
-app.delete("/currDb", function(req, res) {
+app.delete("/currDb/", function(req, res) {
 	
 	db.run(`DELETE FROM gallery`, (err) => {
 		if(err) {
@@ -266,7 +270,7 @@ app.delete("/currDb", function(req, res) {
 				}
 				else
 				{
-					recreateDatabase(true);
+					recreateDatabase(true); //For testing the delete function, comment this line
 					res.status(205);
 					return res.json('Database deleted successfully. Reinitialized default values');
 				}
@@ -330,7 +334,7 @@ function my_database(filename) {
 		return db;
 	}
 	
-//-----------------Remakes the database with the original values, after succesful deletion
+//-----------------Remakes the database with the original values, after succesful deletion----------------------
 function recreateDatabase(deleteCheck)
 {
 	if(deleteCheck)
@@ -339,4 +343,3 @@ function recreateDatabase(deleteCheck)
 	}
 	return db;
 }
-	
