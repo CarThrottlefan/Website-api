@@ -1,0 +1,33 @@
+{
+  "name": "http_restful_api",
+  "version": "1.0.0",
+  "description": "This is a RESTful web api running on HTTP 1.1",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CarThrottlefan/Website-api.git"
+  },
+  "keywords": [
+    "web",
+    "api",
+    "rest",
+    "http_1.1",
+    "RESTful",
+    "SQLite",
+    "Express",
+    "Node.js"
+  ],
+  "author": "Alexandru-Valentin Florea",
+  "license": "MIT",
+  "homepage": "https://github.com/Dolyetyus/webtech-lab131/tree/A3",
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}

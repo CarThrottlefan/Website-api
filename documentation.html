@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Documentation of Our API</title>
+  </head>
+  <body>
+    <h1>RESTful API Documentation Lab 131</h1>
+    <p>This document explains the use of the RESTful API for front-end developers of a Web server and how to use the API.</p>
+    <br>
+    <h2>The fields that this API uses</h2>
+    <ul>
+    	<li>id - A uniqe item ID</li>
+		<li>author - Author's name in string</li>
+		<li>image - Image url of an author's photo</li>
+		<li>alt - Alt text for the photo in string</li>
+		<li>description - Description of the photo in string</li>
+		<li>Tags - Tags in string (or array of strings)</li>
+	</ul>
+	<h2>Create</h2>
+	<p>The Create functionality allows you to add data for a new photo item.</p>
+	<h3>Endpoint URI</h3>
+	<p>The endpoint URI for creating a new photo item is: <code>/x</code></p>
+	<h3>HTTP Method</h3>
+	<p>The HTTP method for creating a new photo item is <code>POST</code>.</p>
+	<h3>HTTP Response Codes</h3>
+	<ul>
+	  <li><code>201 Created</code> - The item creation is successfull, the photo is addded.</li>
+	  <li><code>400 Bad Request</code> - There was a prronlem with the request data.</li>
+	</ul>
+	<h3>MIME Format</h3>
+	<p>The resource is returned in <code>application/json</code> format in the HTTP response message. Look below for an example.</p>
+	<h3>Example</h3>
+	<p>Input:</p>
+	<pre>
+	  POST /x
+	  Content-Type: application/json
+	  {
+	    "author": "New image",
+	    "image": "https://image.com/photo.png"
+	    "alt": "alt-text"
+	    "description": "This is a description for the photo"
+	    "tags": "tags, photo"
+	  }
+	</pre>
+	<p>Output:</p>
+	<pre>
+	  HTTP/1.1 201 Created
+	  Content-Type: application/json
+	  {
+	    "id": 1,
+	    "author": "New image",
+	    "image": "https://example.com/photos/1.jpg"
+	    "alt": "alt-text"
+	    "description": "This is a description for the photo"
+	    "tags": "tags, photo"
+	  }
+	</pre>
+
+	<br>
+	<h2>Retrieve</h2>
+	<p>The Retrieve functionality allows you to get and list the data of a specific item.</p>
+	<h3>Endpoint URI</h3>
+	<p>The endpoint URI for retrieving a photo item is: <code>/x/{id}</code>, where <code>{id}</code> is the ID of the photo item to get.</p>
+	<h3>HTTP Method</h3>
+	<p>The HTTP method for retrieving a photo item is <code>GET</code>.</p>
+	<h3>HTTP Response Codes</h3>
+	<ul>
+	  <li><code>200 OK</code> - The photo item was successfully retrieved.</li>
+	  <li><code>404 Not Found</code> - The photo item with the specified ID was not found.</li>
+	</ul>
+	<h3>MIME Format</h3>
+	<p>The resource is returned in <code>application/json</code> format in the HTTP response message. Look below for an example.</p>
+	<h3>Example</h3>
+	<p>Input:</p>
+	<pre>
+	  GET /x/1
+	</pre>
+	<p>Output:</p>
+	<pre>
+	  HTTP/1.1 200 Photo Details Retrieved
+	  Content-Type: application/json
+	  {
+	    "id": 1,
+	    "author": "New image",
+	    "image": "https://example.com/photos/1.jpg"
+	    "alt": "alt-text"
+	    "description": "This is a description for the photo"
+	    "tags": "tags, photo"
+	  }
+	</pre>
+
+	<br>
+	<h2>Update</h2>
+	<p>The Update functionality allows you to change data of an item in the database.</p>
+	<h3>Endpoint URI</h3>
+	<p>The endpoint URI for updating a photo item is: <code>/x/{id}</code>, where <code>{id}</code> is the ID of the item to update.</p>
+	<h3>HTTP Method</h3>
+	<p>The HTTP method for updating a photo item is <code>PUT</code>.</p>
+	<h3>HTTP Response Codes</h3>
+	<ul>
+	  <li><code>200 OK</code> - The item was successfully updated.</li>
+	  <li><code>400 Bad Request</code> - There was an issue with the requested data.</li>
+	  <li><code>404 Not Found</code> - The photo item with the given ID was not found.</li>
+	</ul>
+	<h3>MIME Format</h3>
+	<p>The resource is returned in <code>application/json</code> format in the HTTP response message.</p>
+	<h3>Example</h3>
+	<p>Input:</p>
+	<pre>
+	  PUT /x/1
+	  Content-Type: application/json
+	  {
+	    "id": 1,
+	    "author": "Updated image",
+	    "image": "https://example.com/updated-photo.jpg"
+	    "alt": "updated-alt-text"
+	    "description": "This is an updated description for the photo"
+	    "tags": "updated, tags, photo"
+	  }
+	</pre>
+	<p>Output:</p>
+	<pre>
+	  HTTP/1.1 200 OK
+	  Content-Type: application/json
+	  {
+	    "id": 1,
+	    "author": "Updated image",
+	    "image": "https://example.com/updated-photo.jpg"
+	    "alt": "updated-alt-text"
+	    "description": "This is an updated description for the photo"
+	    "tags": "updated, tags, photo"
+	  }
+	</pre>
+
+	<br>
+	<h2>Delete</h2>
+	<p>The Delete functionality allows you to remove data from the database of a specific item.</p>
+	<h3>Endpoint URI</h3>
+	<p>The endpoint URI for deleting a photo item is: <code>/x/{id}</code>, where <code>{id}</code> is the ID of the photo item to delete.</p>
+	<h3>HTTP Method</h3>
+	<p>The HTTP method for deleting a photo item is <code>DELETE</code>.</p>
+	<h3>HTTP Response Codes</h3>
+	<ul>
+	  <li><code>204 No Content</code> - The photo item was successfully deleted.</li>
+	  <li><code>404 Not Found</code> - The photo item with the specified ID was not found.</li>
+	</ul>
+	<h3>MIME Format</h3>
+	<p>Only the HTTP response code is returned in the the delete function.</p>
+	<h3>Example</h3>
+	<p>Input:</p>
+	<pre>
+	  DELETE /x/1
+	</pre>
+	<p>Output:</p>
+	<pre>
+	  HTTP/1.1 204 Item Deleted
+	</pre>
+</body>
+</html>

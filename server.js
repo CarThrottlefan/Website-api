@@ -26,7 +26,6 @@
 
 const sqlite = require('sqlite3').verbose();
 let db = my_database('./gallery.db');
-let deleteCheck = false;
 
 // ###############################################################################
 // The database should be OK by now. Let's setup the Web server so we can start
@@ -69,7 +68,7 @@ app.put("/currDb/item/:uid", function(req, res){
 		}
 		if (!row['EXISTS(SELECT 1 FROM gallery WHERE id=?)']) {
 		  res.status(404);
-		  res.json('Error - item with the given ID does not exist');
+		  return res.json('Error - item with the given ID does not exist');
 		} 
 		else 
 		{
@@ -114,15 +113,15 @@ app.put("/currDb/item/:uid", function(req, res){
 							if(fail)
 							{
 								res.status(400);
-								res.json('Error - missing attributes' + errType);
 								console.log('Malformed user input, missing' + errType);
+								return res.json('Error - missing attributes' + errType);
 							}
 							else{
 								res.status(203);
-								res.json('Update completed successfully'); 
+								return res.json('Update completed successfully'); 
 							}
 				});			
-		}
+			}
 	  });	
 });
 
@@ -169,12 +168,12 @@ app.post("/currDb", function(req, res){
 					if(fail)
 					{
 						res.status(400);
-						res.json('Error - missing attributes' + errType);
 						console.log('Malformed user input, missing' + errType);
+						return res.json('Error - missing attributes' + errType);
 					}
 					else{
 						res.status(202);
-						res.json('Inserted entry in database'); 
+						return res.json('Inserted entry in database'); 
 					}
 				});			
 });
@@ -209,12 +208,12 @@ app.get('/currDb/item/:id', function(req, res) {
 		if(err)
 		{
 			res.status(404);
-			res.json('Not found');
+			return res.json('Not found');
 		}
 		else if (rows.length === 0)
 		{
 			res.status(404);
-			res.json('Not found');
+			return res.json('Not found');
 		}
 		else
 		{
@@ -227,39 +226,31 @@ app.get('/currDb/item/:id', function(req, res) {
 
 //---------------Deletes a single entry in the db --------------------------
 app.delete("/currDb/item/:id", function(req, res) {
-	db.run(`DELETE FROM gallery WHERE id = ?`, [req.params.id], (err) => {
+	db.run(`DELETE FROM gallery WHERE id = ?`, [req.params.id], function(err, result) {
 	  if (err) {
 		res.status(500);
-		res.json(err.message);
-	   } 
-		else {
-		db.get(`SELECT * FROM gallery WHERE id = ?`, [req.params.id], (err, row) => {
-		  if(err)
-		  {
-			res.status(500);
-			res.json(err.message);
-		  }
-		else if (!row) {
-			res.status(404);
-			res.json("Not Found");
-		  	}
-		else
-		{
-			res.status(204);
-			res.json("Item Deleted");
+		return res.json(err.message);
+	  } 
+	  else {
+		if (this.changes > 0) {
+		  res.status(204);
+		  return res.json("Item Deleted");
 		}
+		else {
+		  res.status(404);
+		  return res.json("Not Found");
+		}
+	  }
 	});
-}
-});
-});
+  });
 
-
-app.delete("/currDb", function(req, res){
+//------------------Resets database to its initial values ----------------
+app.delete("/currDb", function(req, res) {
 	
 	db.run(`DELETE FROM gallery`, (err) => {
 		if(err) {
 			res.status(500);
-			res.json(err.message);
+			return res.json(err.message);
 		}
 		else {
 			db.all("SELECT * FROM gallery", (err, rows) => {
@@ -284,8 +275,6 @@ app.delete("/currDb", function(req, res){
 	});
 });
 
-
-
 // ###############################################################################
 // This should start the server, after the routes have been defined, at port 3000:
 
@@ -296,7 +285,6 @@ console.log("Your Web server should be up and running, waiting for requests to c
 // Some helper functions called above
 function my_database(filename) {
 	// Conncect to db by opening filename, create filename if it does not exist:
-	let i; //TODO see if needed
 	var db = new sqlite.Database(filename, (err) => {
 		if (err) {
 			console.error(err.message);
@@ -334,7 +322,6 @@ function my_database(filename) {
     				]);
 					console.log('Inserted dummy photo entry into empty database');
 				} else {
-					//i = result[0].count;
 					console.log("Database contains", result[0].count, "item(s) at startup.");
 				}
 			});
@@ -343,6 +330,7 @@ function my_database(filename) {
 		return db;
 	}
 	
+//-----------------Remakes the database with the original values, after succesful deletion
 function recreateDatabase(deleteCheck)
 {
 	if(deleteCheck)
