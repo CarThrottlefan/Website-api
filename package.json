@@ -20,7 +20,7 @@
     "Express",
     "Node.js"
   ],
-  "author": "Alexandru-Valentin Florea",
+  "author": "Alexandru-Valentin Florea, Musab Orguz", 
   "license": "MIT",
   "homepage": "https://github.com/Dolyetyus/webtech-lab131/tree/A3",
   "dependencies": {
