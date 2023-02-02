@@ -1,37 +1,5 @@
-// ###############################################################################
-// Web Technology at VU University Amsterdam
-// Assignment 3
-//
-// The assignment description is available on Canvas. 
-// Please read it carefully before you proceed.
-//
-// This is a template for you to quickly get started with Assignment 3.
-// Read through the code and try to understand it.
-//
-// Have you read the zyBook chapter on Node.js?
-// Have you looked at the documentation of sqlite?
-// https://www.sqlitetutorial.net/sqlite-nodejs/
-//
-// Once you are familiar with Node.js and the assignment, start implementing
-// an API according to your design by adding routes.
-
-
-// ###############################################################################
-//
-// Database setup:
-// First: Our code will open a sqlite database file for you, and create one if it not exists already.
-// We are going to use the variable "db' to communicate to the database:
-// If you want to start with a clean sheet, delete the file 'phones.db'.
-// It will be automatically re-created and filled with one example item.
-
 const sqlite = require('sqlite3').verbose();
 let db = my_database('./gallery.db');
-
-// ###############################################################################
-// The database should be OK by now. Let's setup the Web server so we can start
-// defining routes.
-//
-// First, create an express application `app`:
 
 var express = require("express"); 
 var app = express();
@@ -40,22 +8,12 @@ app.use(cors({
     origin: '*' //TODO maybe find a way so you can give request permission just to the website adresses (ISSUE now is the fact that the /item/*num* is dynamic, since u need all id's to be accessible)
 }));
 
-// We need some middleware to parse JSON data in the body of our HTTP requests:
 app.use(express.json());
-
-
-// ###############################################################################
-// Routes
-// 
-
 
 //---------------------A simple test to see if the server is operational(left this in on purpose) ------------
 // This example route responds to http://localhost:3000/hello with an example JSON object.
 app.get("/hello", function(req, res) {
 	response_body = {'Hello': 'World'} ;
-
-	// This example returns valid JSON in the response, but does not yet set the
-	// associated HTTP response header. 
 	res.json(response_body) ;
 });
 
@@ -181,9 +139,6 @@ app.post("/currDb/", function(req, res){
 					}
 				});			
 });
-// ###############################################################################
-
-
 
 //------------Retrieves the whole database ------------------------
 app.get('/currDb/', function(req, res) { 
@@ -279,13 +234,11 @@ app.delete("/currDb/", function(req, res) {
 	});
 });
 
-// ###############################################################################
 // This should start the server, after the routes have been defined, at port 3000:
 
 app.listen(3000);
 console.log("Your Web server should be up and running, waiting for requests to come in. Try http://localhost:3000/hello");
 
-// ###############################################################################
 // Some helper functions called above
 function my_database(filename) {
 	// Conncect to db by opening filename, create filename if it does not exist:
